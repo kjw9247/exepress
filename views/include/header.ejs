@@ -1,0 +1,111 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+
+    <a class="navbar-brand" href="#">
+      <img src="/images/testimonial/woman1.png" alt="Avatar Logo" style="width:40px;" class="rounded-pill"> 
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/home">Home</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">일정관리</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/calendar/cstep1">일정관리1</a></li>
+            <li><a class="dropdown-item" href="/calendar/cstep2">일정관리2</a></li>
+            <li><a class="dropdown-item" href="/calendar/cstep3">일정관리3</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link" href="#">게시판</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">유튜브</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/youtube/step1">버전1</a></li>
+            <li><a class="dropdown-item" href="/youtube/step2">버전2</a></li>
+            <li><a class="dropdown-item" href="/youtube/step3">버전3</a></li>
+          </ul>
+        </li>
+
+      </ul>
+<!-- 로그인, 로그아웃, 로그인한 이메일주소 -->
+      <div class="d-flex">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item" id="login">
+            <a class="nav-link active" aria-current="page" href="/login">로그인</a>
+          </li>              
+          <li class="nav-item" id="myEmail" style="display: none;">
+            <a class="nav-link active" aria-current="page" href="#">현사용자이메일주소</a>
+          </li>              
+          <li class="nav-item" id="logout" style="display: none;">
+            <a class="nav-link active" aria-current="page" href="#">로그아웃</a>
+          </li>              
+        </ul>
+      </div>
+<!-- 로그인, 로그아웃, 로그인한 이메일주소 -->
+    </div>
+  </div>
+</nav>
+<script type="module">
+  import { app }  from '/javascripts/firebase.js'
+  import { getAuth } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js"
+  const auth = getAuth(app)
+  console.log(auth);
+//module영역에서는 onclick에서 호출하는 함수가 호출이 안됨.
+//어떡하지? -> addEventLister  
+//여기는 자바스크립트 영역 이다.
+//localStorage에 email값이 있어?
+  const myEmail = localStorage.getItem("email")
+  //세션에 읽어온 email값을 출력하기
+  //index.js(라우터) - email:req.session.email
+  const semail = '<%= email %>'
+  console.log("세션에 저장된 email은 "+semail);//null, test@hot.com
+  if(myEmail){//email이 존재한다. 그러면 로그인을 한 사람이다.
+    //로그인은 안보이게 로그아웃은 보이게하고 또 이메일도 출력해준다. 
+    document.querySelector("#login").style.display = 'none'
+    document.querySelector("#logout").style.display = 'block'
+    document.querySelector("#myEmail").style.display = 'block'
+    //a태그 내부에 이메일 문자열 치환하기
+    document.querySelector("#myEmail").querySelector("a").textContent = myEmail
+  }
+  else{
+    document.querySelector("#login").style.display = 'block'
+    document.querySelector("#logout").style.display = 'none'
+    document.querySelector("#myEmail").style.display = 'none'
+  }
+  //로그아웃 처리하기
+  //1)비번으로 로그인한 경우는 로그아웃처리를 localStorage상태값을 지운다
+  //2)구글계정으로 로그인한 경우는 함수만 호출하면 됨.(비동기처리-> 지연)
+  //로그인에 대한 상태값에 관리 책임이 구글에게 있다.
+  //여기서 logout은 a태그 입니다.
+  const logout = document.querySelector("#logout")
+  logout.addEventListener('click', async()=> {
+    console.log('logout호출 성공');
+    try {
+      //구글계정으로 로그인을 했을 때 로그아웃 하는 방법임.
+      await auth.signOut();
+      //비번으로 로그인을 했을 때는 내가 직접 localStorage삭제해서
+      //로그인 상태를 풀어준다.
+      //localStorage.removeItem('email') //email만 지워줘
+      localStorage.clear()//모두 다 지워줘
+      //카카오 로그인 일 때는 세션을 지워줘 - 서버에서 삭제가능함.
+      //브라우저에서는 세션을 삭제할 수 없다.
+      //세션은 서버의 cache메모리에 저장되어 있으니까....
+      //라우터에게 요청을 해야 한다.
+      //로그아웃이 성공하면 우리는 home으로 간다.
+      location.href='/home' //index.js
+    } catch (error) {
+      console.error('로그아웃 중 에러 발생',error);
+    }
+  })
+
+</script>
