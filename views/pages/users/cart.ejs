@@ -1,1 +1,25 @@
-장바구니
+<div class="row my-5">
+  <div class="col">
+    <h1 class="text-center mb-5">장바구니</h1>
+    <div id="cart_list">핸들바스</div>
+  </div>
+</div>
+<!--장바구니 템플릿-->
+<script id="temp" type="text/x-handlebars-template">
+  <table class="table table-striped">
+      <tr>
+          <td>{{title}}</td>
+          <td>{{authors}}</td>
+          <td>{{price}}</td>
+          <td><button class="btn btn-danger btn-sm" data-isbn="{{ isbn }}">삭제</button></td>
+      </tr>
+  </table>
+</script>
+
+<script type="module">
+  // import { app } from '/javascripts/firebase.js'
+  // import { getFirestore, collection, addDoc } "firebase/firestore"; 
+  console.log('여기');
+  const cartList = document.querySelector('#cart_list')
+  cartList.innerText = "<h1>장바구니목록 처리</h1>"
+</script>
