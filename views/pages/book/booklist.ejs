@@ -59,8 +59,9 @@
 <script type="module">
   //파이어베이스 API활용 - 장바구니 구현, 공지사항 구현, 게시판구현
   import { app } from '/javascripts/firebase.js'
-  import { getDatabase } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js"
+  import { getDatabase, set, ref } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js"
   const db = getDatabase(app)
+  const uid = localStorage.getItem('uid')
   console.log(db);
   // 페이지 상태 값을 담음
   let page = 1
@@ -69,7 +70,7 @@
   // listEl은 핸들바스로 가져온 목록 전체
   // 목록 영역 클릭 이벤트(장바구니, 도서 이미지 모달
   
-  listEl.addEventListener('click', (e)=> {
+  listEl.addEventListener('click', async(e)=> {
     // 이벤트 소스 티켓
     // 타겟에 따라서 장부그니 처리와 이미지 클릭 모달 처리를 해여한다 -> 분기
     const target = e.target
@@ -77,7 +78,15 @@
     // CART 글자를 클릭한거야?
     if(target.classList.contains('cart')){
       console.log('CART클릭했을때');
-    }
+      if(uid){
+        const book = JSON.parse(target.getAttribute('book'))
+        await set(ref(db, `cart/${uid}${book.isbn}`), book)
+        alert('장바구니에 등록되었습니다.')
+      }else{
+        window.location.href = '/login'
+      } // end of inner if
+    } // end of outer if
+
     else if('IMG' === target.tagName){// 부트스트랩이 제공하는 모달 활용
       const idx =target.getAttribute('index')
       console.log(idx); // 사용자 선택한 도서 이미지의 식별자 가져오기
